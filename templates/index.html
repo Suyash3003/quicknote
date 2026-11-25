@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QuickNote</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<main>
+    <header>
+        <div>
+            <h1>QuickNote.</h1>
+            <p>A little space for your thoughts.</p>
+        </div>
+        <span class="version">v{{ version }}</span>
+    </header>
+
+    <section class="editor">
+        <h2 id="form-heading">Create a note</h2>
+
+        <input id="title" placeholder="Note title">
+
+        <textarea id="content"
+                  placeholder="What's on your mind?"></textarea>
+
+        <button onclick="saveNote()" id="save">Add note</button>
+        <button onclick="resetForm()" class="secondary">Cancel</button>
+
+        <p id="message"></p>
+    </section>
+
+    <section class="notes-header">
+        <h2>Your notes</h2>
+        <span id="count">0 notes</span>
+    </section>
+
+    <section id="notes" class="grid"></section>
+
+    <footer>
+        QuickNote / Docker + Amazon ECR / CI/CD Assignment 5
+    </footer>
+</main>
+
+<script>
+let editing = null;
+
+async function loadNotes() {
+    const response = await fetch("/api/notes");
+    const notes = await response.json();
+
+    const container = document.getElementById("notes");
+    container.replaceChildren();
+
+    document.getElementById("count").textContent =
+        `${notes.length} notes`;
+
+    notes.forEach(note => {
+        const card = document.createElement("article");
+
+        const heading = document.createElement("h3");
+        heading.textContent = note.title;
+
+        const content = document.createElement("p");
+        content.textContent = note.content;
+
+        const time = document.createElement("small");
+        time.textContent = note.created_at;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const edit = document.createElement("button");
+        edit.textContent = "Edit";
+        edit.className = "secondary";
+
+        edit.onclick = () => {
+            editing = note.id;
+            document.getElementById("title").value = note.title;
+            document.getElementById("content").value = note.content;
+            document.getElementById("save").textContent = "Update note";
+            document.getElementById("form-heading").textContent = "Edit note";
+            window.scrollTo(0, 0);
+        };
+
+        const remove = document.createElement("button");
+        remove.textContent = "Delete";
+        remove.className = "danger";
+        remove.onclick = () => deleteNote(note.id);
+
+        actions.append(edit, remove);
+        card.append(heading, content, time, actions);
+        container.append(card);
+    });
+}
+
+async function saveNote() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    const url = editing === null
+        ? "/api/notes"
+        : `/api/notes/${editing}`;
+
+    const response = await fetch(url, {
+        method: editing === null ? "POST" : "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({title, content})
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        document.getElementById("message").textContent = data.error;
+        return;
+    }
+
+    resetForm();
+    loadNotes();
+}
+
+async function deleteNote(id) {
+    if (!confirm("Delete this note?")) return;
+
+    await fetch(`/api/notes/${id}`, {method: "DELETE"});
+
+    if (editing === id) resetForm();
+
+    loadNotes();
+}
+
+function resetForm() {
+    editing = null;
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
+    document.getElementById("save").textContent = "Add note";
+    document.getElementById("form-heading").textContent = "Create a note";
+    document.getElementById("message").textContent = "";
+}
+
+loadNotes();
+</script>
+
+</body>
+</html>

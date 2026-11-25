@@ -1,0 +1,38 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: us-east-1
+    AWS_ACCOUNT_ID: "330199157098"
+    IMAGE_REPO_NAME: quicknote
+
+phases:
+  install:
+    commands:
+      - python3 -m venv /tmp/quicknote-build-venv
+      - source /tmp/quicknote-build-venv/bin/activate
+      - pip install -r requirements.txt pytest
+
+  pre_build:
+    commands:
+      - echo "Running unit tests"
+      - python -m pytest tests/ -v
+      - echo "Authenticating with Amazon ECR"
+      - export REGISTRY=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - export IMAGE_URI=$REGISTRY/$IMAGE_REPO_NAME
+      - export IMAGE_TAG=$(echo "${CODEBUILD_RESOLVED_SOURCE_VERSION:-$(git rev-parse HEAD)}" | cut -c1-12)
+      - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$REGISTRY"
+
+  build:
+    commands:
+      - echo "Building Docker image"
+      - docker build -t "$IMAGE_URI:$IMAGE_TAG" .
+      - docker tag "$IMAGE_URI:$IMAGE_TAG" "$IMAGE_URI:latest"
+
+  post_build:
+    commands:
+      - test "${CODEBUILD_BUILD_SUCCEEDING:-1}" = "1"
+      - echo "Pushing images to ECR"
+      - docker push "$IMAGE_URI:$IMAGE_TAG"
+      - docker push "$IMAGE_URI:latest"
+      - echo "BUILD_SUCCESS"

@@ -1,0 +1,121 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #f4f1ea;
+    color: #262b26;
+    font-family: Arial, sans-serif;
+}
+
+main {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 24px;
+}
+
+header, .notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-size: 52px;
+    letter-spacing: -3px;
+    margin-bottom: 0;
+}
+
+header p {
+    color: #73796e;
+}
+
+.version {
+    background: #dce9d5;
+    color: #355637;
+    padding: 10px 18px;
+    border-radius: 20px;
+}
+
+.editor {
+    background: white;
+    padding: 25px;
+    border: 1px solid #d9ded4;
+    border-radius: 12px;
+    margin: 30px 0;
+}
+
+input, textarea {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 15px;
+    border: 1px solid #d9ded4;
+    border-radius: 6px;
+    font: inherit;
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+button {
+    border: none;
+    border-radius: 6px;
+    padding: 10px 18px;
+    background: #365b40;
+    color: white;
+    cursor: pointer;
+}
+
+.secondary {
+    background: #e8eae4;
+    color: #353b32;
+}
+
+.danger {
+    background: #f5dddd;
+    color: #a33232;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+article {
+    padding: 22px;
+    background: #fffdf5;
+    border: 1px solid #deddd1;
+    border-radius: 10px;
+    overflow-wrap: anywhere;
+}
+
+article p {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+small, footer, #count {
+    color: #777e72;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#message {
+    color: #a33232;
+}
+
+footer {
+    border-top: 1px solid #d9ded4;
+    margin-top: 50px;
+    padding-top: 20px;
+    font-size: 13px;
+}
