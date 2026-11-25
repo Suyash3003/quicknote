@@ -5,7 +5,7 @@ from contextlib import closing
 
 app = Flask(__name__)
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 app.config["DATABASE"] = os.getenv("DB_PATH", "notes.db")
 
 
